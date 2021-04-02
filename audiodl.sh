@@ -22,11 +22,14 @@ name=""
 dir=""
 playlist=""
 url=""
+sep=""
 helpr='
 audiodl.sh URL [OPTIONS]
 
 OPTIONS:
  -n The name of the resulting audio file.
+ -s The separator for the given name. (Defaults to no separation. ie: SomeSong)
+    (If no name is given this option is ignored.)
  -d The path to the desired directory.
     (Must be an absolute path if not in a parent directory.)
  -p The path to the desired playlist file.
@@ -34,12 +37,11 @@ OPTIONS:
 '
 
 
-i=1
 for arg in "$@"; do
 	is_url=$(echo "$arg" | sed 's/http.*/true/g')
 	if [ "$is_url" = "true" ]; then
 		url="$arg"
-		shift # remove arughment from "arg"
+		shift # shifts argument numeration. "Removes" and argument once processed.
 		continue
 	fi
 
@@ -49,9 +51,15 @@ for arg in "$@"; do
 			exit 0;
 			;;
 		-n|--name)
-			name=$(echo "$2" | sed 's/ //g')
+			name=$(echo "$2" | sed "s/ /$sep/g")
 			shift
 		;;
+		-s|--separator)
+			sep="$2"
+			# repeat name assiginment in case user places -s after -n
+			name=$(echo "$2" | sed "s/ /$sep/g")
+			shift
+			;;
 	  -d|--directory)
 			dir="$2"
 			shift
@@ -65,7 +73,6 @@ for arg in "$@"; do
 			continue
 		;;
 	esac
-	i="$((i+1))"
 done
 
 if [ "$name" = "" ]; then
@@ -76,20 +83,20 @@ fi
 
 if [ "$dir" != "" ]; then
 	if [ "$name" = "" ]; then
-		printf '[audiodl] To move the resulting audio file to the provided directory; "-n" must be given.'
+		printf '[audiodl] To move the resulting audio file to the provided directory; "-n" must be given.\n'
 		exit 1;
 	fi
 	mv "$name".mp3 "$dir" && \
-		printf '[audiodl] "%s" successfully moved to "%s"' "$name" "$dir";
+		printf '[audiodl] "%s" successfully moved to "%s"\n' "$name" "$dir";
 fi
 
 if [ "$playlist" != "" ]; then
 	if [ "$name" = "" ]; then
-		printf '[audiodl] To add the resulting audio file to the provided playlist; "-n" must be given.'
+		printf '[audiodl] To add the resulting audio file to the provided playlist; "-n" must be given.\n'
 		exit 1;
 	fi
 	echo "$name".mp3 >> "$playlist" && \
-		printf '[audiodl] "%s" successfully added to "%s"' "$name" "$playlist";
+		printf '[audiodl] "%s" successfully added to "%s"\n' "$name" "$playlist";
 fi
 
 exit 0;
