@@ -9,8 +9,11 @@ of the video being converted.
 ## Installation:
 ### Add the man page:
 `sudo mkdir /usr/local/man/man1`
+
 `sudo cp audiodl.1 /usr/local/man/man1`
+
 `sudo gzip /usr/local/man/man1/audiodl.1`
+
 `sudo mandb`
 
 ### Add the script:
