@@ -73,29 +73,26 @@ for arg in "$@"; do
 	esac
 done
 
+printf '[audiodl] Dowloading video and converting to MP3 ...\n';
 if [ "$name" = "" ]; then
-	youtube-dl -x --audio-format "mp3" --audio-quality 0 --embed-thumbnail -o '%(title).%(ext)s' "$url"
+	file=$(youtube-dl -x --audio-format "mp3" --audio-quality 0 --embed-thumbnail \
+		"$url" | awk -F '"' '/.*\.mp3/ { print $2 }')
 else
 	name=$(echo "$name" | sed "s/ /$sep/g")
-	youtube-dl -x --audio-format "mp3" --audio-quality 0 --embed-thumbnail -o "$name"'.%(ext)s' "$url"
+	file=$(youtube-dl -x --audio-format "mp3" --audio-quality 0 --embed-thumbnail \
+		-o "$name.%(ext)s" "$url" | awk -F '"' '/.*\.mp3/ { print $2 }' | tr -d '\n')
 fi
 
 if [ "$dir" != "" ]; then
-	if [ "$name" = "" ]; then
-		printf '[audiodl] To move the resulting audio file to the provided directory; "-n" must be given.\n'
-		exit 1;
-	fi
-	mv "$name".mp3 "$dir" && \
+	printf '[audiodl] Moving "%s" to "%s" ...\n' "$name" "$dir";
+	mv "$file" "$dir" && \
 		printf '[audiodl] "%s" successfully moved to "%s"\n' "$name" "$dir";
 fi
 
 if [ "$playlist" != "" ]; then
-	if [ "$name" = "" ]; then
-		printf '[audiodl] To add the resulting audio file to the provided playlist; "-n" must be given.\n'
-		exit 1;
-	fi
-	echo "$name".mp3 >> "$playlist" && \
-		printf '[audiodl] "%s" successfully added to "%s"\n' "$name" "$playlist";
+	printf '[audiodl] Adding "%s" to playlist "%s" ...\n' "$file" "$playlist"
+	echo "$file" >> "$playlist" && \
+		printf '[audiodl] "%s" successfully added to "%s"\n' "$file" "$playlist";
 fi
 
 exit 0;
