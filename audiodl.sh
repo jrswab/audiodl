@@ -51,13 +51,11 @@ for arg in "$@"; do
 			exit 0;
 			;;
 		-n|--name)
-			name=$(echo "$2" | sed "s/ /$sep/g")
+			name="$2"
 			shift
 		;;
 		-s|--separator)
 			sep="$2"
-			# repeat name assiginment in case user places -s after -n
-			name=$(echo "$2" | sed "s/ /$sep/g")
 			shift
 			;;
 	  -d|--directory)
@@ -78,6 +76,7 @@ done
 if [ "$name" = "" ]; then
 	youtube-dl -x --audio-format "mp3" --audio-quality 0 --embed-thumbnail -o '%(title).%(ext)s' "$url"
 else
+	name=$(echo "$name" | sed "s/ /$sep/g")
 	youtube-dl -x --audio-format "mp3" --audio-quality 0 --embed-thumbnail -o "$name"'.%(ext)s' "$url"
 fi
 
